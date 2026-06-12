@@ -1,0 +1,67 @@
+name: Build DMD FUSE APK
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Cordova
+        run: npm install -g cordova
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Create Project and Build
+        run: |
+          cordova create build_folder com.pincab.dmdfuse "DMD FUSE"
+          rm -rf build_folder/www
+          cp -r www build_folder/www
+          
+          cd build_folder
+          
+          echo '<?xml version="1.0" encoding="utf-8"?>
+          <widget id="com.pincab.dmdfuse" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android">
+              <name>DMD FUSE</name>
+              <content src="index.html" />
+              <access origin="*" />
+              <allow-navigation href="ws://*/*" />
+              <allow-navigation href="http://*/*" />
+              <allow-intent href="http://*/*" />
+              <preference name="Orientation" value="landscape" />
+              <preference name="Fullscreen" value="true" />
+              <preference name="scheme" value="http" />
+              <preference name="hostname" value="localhost" />
+              <edit-config href="---/*" id="AndroidManifest.xml" mode="merge" target="app/src/main/AndroidManifest.xml">
+                  <application android:usesCleartextTraffic="true" />
+              </edit-config>
+          </widget>' > config.xml
+
+          cordova platform add android
+          
+          # Plugin pour autoriser le HTTP clair
+          cordova plugin add cordova-plugin-cleartext
+          # LE NOUVEAU PLUGIN : Transforme la tablette en Serveur WebSocket
+          cordova plugin add cordova-plugin-websocket-server
+          
+          cordova build android --device
+
+      - name: Upload Finished APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DMD-FUSE-Application
+          path: build_folder/platforms/android/app/build/outputs/apk/debug/app-debug.apk
