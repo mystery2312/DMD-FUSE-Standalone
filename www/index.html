@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>DMD FUSE</title>
+    <title>DMD FUSE - SERVER MODE</title>
     <style>
         body { 
             margin: 0; padding: 0; 
@@ -14,47 +14,26 @@
             user-select: none;
         }
 
-        /* --- Barre de configuration de l'IP --- */
-        #config-bar {
-            background: #1a1a1a; 
-            padding: 10px; 
-            display: flex; 
-            gap: 10px; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            z-index: 9999; 
-            box-sizing: border-box;
-            border-bottom: 2px solid #333;
-        }
-
-        #ip-input {
-            flex: 1; 
-            padding: 8px 12px; 
-            background: #2b2b2b; 
-            color: #fff; 
-            border: 1px solid #444; 
-            border-radius: 4px;
+        /* --- NOUVEAU : Bandeau d'information Serveur --- */
+        #info-bar {
+            background: rgba(20, 20, 20, 0.9);
+            color: #fff;
+            padding: 12px;
+            text-align: center;
             font-size: 16px;
-        }
-
-        #connect-btn {
-            padding: 8px 20px; 
-            background: #007acc; 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer;
             font-weight: bold;
-            font-size: 16px;
+            border-bottom: 2px solid #007acc;
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            z-index: 9999;
+            box-sizing: border-box;
+            transition: opacity 0.5s;
         }
 
-        #connect-btn:hover {
-            background: #0062a3;
-        }
+        .highlight { color: #00e676; font-size: 18px; }
 
-        /* Le conteneur qui affiche ton image de backglass */
+        /* Le conteneur du backglass */
         #backglass-container {
             width: 100vw;
             height: 100vh;
@@ -64,7 +43,7 @@
             position: relative;
         }
 
-        /* La zone du DMD qui flotte au-dessus, calée en bas */
+        /* La zone du DMD */
         #dmd-wrapper {
             position: absolute;
             bottom: 5%;
@@ -72,17 +51,11 @@
             transform: translateX(-50%);
             width: 80%;
             aspect-ratio: 4 / 1;
-            
-            /* -- Le Cadre (Bezel) -- */
             background: #050505; 
             border: 8px solid #333; 
             border-radius: 6px; 
             padding: 8px; 
-            
-            /* Effet de profondeur (Encastré) */
-            box-shadow: inset 0 0 20px rgba(0,0,0,1), 
-                        0 5px 15px rgba(0,0,0,0.5);   
-            
+            box-shadow: inset 0 0 20px rgba(0,0,0,1), 0 5px 15px rgba(0,0,0,0.5);   
             box-sizing: border-box; 
         }
 
@@ -100,81 +73,33 @@
             pointer-events: none;
         }
 
-        /* --- NOUVEAU : Bouton Paramètres ⚙️ --- */
+        /* Bouton Paramètres */
         #settings-btn {
             position: absolute;
-            bottom: 15px;
-            right: 15px;
-            width: 45px;
-            height: 45px;
-            background: rgba(40, 40, 40, 0.7);
-            border: 1px solid #555;
-            border-radius: 50%;
-            color: #fff;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 9990;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            bottom: 15px; right: 15px; width: 45px; height: 45px;
+            background: rgba(40, 40, 40, 0.7); border: 1px solid #555; border-radius: 50%;
+            color: #fff; font-size: 24px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 9990; box-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
-        /* --- NOUVEAU : Fenêtre Modal de Configuration --- */
+        /* Modal */
         .modal {
-            display: none; 
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 10000;
-            align-items: center;
-            justify-content: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85); z-index: 10000; align-items: center; justify-content: center;
         }
-
         .modal-content {
-            background: #222;
-            color: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            width: 85%;
-            max-width: 450px;
-            box-sizing: border-box;
-            text-align: center;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.7);
+            background: #222; color: #fff; padding: 25px; border-radius: 8px; border: 1px solid #444;
+            width: 85%; max-width: 450px; box-sizing: border-box; text-align: center;
         }
-
-        .modal-content h3 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #007acc;
-        }
-
-        .file-input-wrapper {
-            margin: 20px 0;
-        }
-
-        .modal-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            margin: 5px;
-        }
-
+        .modal-content h3 { margin-top: 0; margin-bottom: 20px; color: #007acc; }
+        .modal-btn { padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin: 5px; }
         .btn-close { background: #555; color: white; }
         .btn-reset { background: #b32424; color: white; }
     </style>
 </head>
 <body>
 
-    <div id="config-bar">
-        <input type="text" id="ip-input" placeholder="IP du PC (ex: 192.168.1.50)">
-        <button id="connect-btn">Connexion</button>
-    </div>
+    <div id="info-bar">⚙️ Démarrage du serveur DMD...</div>
 
     <div id="backglass-container">
         <div id="dmd-wrapper">
@@ -184,17 +109,12 @@
     </div>
 
     <div id="settings-btn">⚙️</div>
-
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <h3>Configuration DMD FUSE</h3>
             <p>Sélectionnez une image pour le Backglass :</p>
-            
-            <div class="file-input-wrapper">
-                <input type="file" id="bg-file-input" accept="image/*">
-            </div>
-
-            <button id="modal-reset-btn" class="modal-btn btn-reset">Réinitialiser (Image par défaut)</button>
+            <div style="margin: 20px 0;"><input type="file" id="bg-file-input" accept="image/*"></div>
+            <button id="modal-reset-btn" class="modal-btn btn-reset">Image par défaut</button>
             <button id="modal-close-btn" class="modal-btn btn-close">Fermer</button>
         </div>
     </div>
@@ -202,74 +122,72 @@
     <script src="cordova.js"></script>
 
     <script>
-        // Attente du chargement complet de l'application
         document.addEventListener('deviceready', initApplication, false);
-
-        // Fallback si testé sur un navigateur PC 
-        if (!window.cordova) {
-            window.addEventListener('DOMContentLoaded', initApplication);
-        }
 
         function initApplication() {
             const canvas = document.getElementById('dmdCanvas');
             const ctx = canvas.getContext('2d');
             const VERTICAL_OFFSET = 0;
-
-            // Important : pas de lissage pour garder le style rétro
             ctx.imageSmoothingEnabled = false;
 
-            // Calé sur 128x32 (4096 pixels) pour éviter le crash Android
             const imgData = ctx.createImageData(128, 32);
-
-            // --- ÉLÉMENTS DE L'INTERFACE APPLICATION ---
-            const ipInput = document.getElementById('ip-input');
-            const connectBtn = document.getElementById('connect-btn');
-            const configBar = document.getElementById('config-bar');
+            const infoBar = document.getElementById('info-bar');
             const backglassContainer = document.getElementById('backglass-container');
 
-            // 1. Restaurer le backglass personnalisé s'il existe
+            // 1. Restaurer le backglass personnalisé
             const savedBG = localStorage.getItem('pincab_backglass');
             if (savedBG) {
                 backglassContainer.style.backgroundImage = `url('${savedBG}')`;
             }
 
-            // 2. Charger automatiquement l'IP sauvegardée
-            const savedIP = localStorage.getItem('pincab_ip');
-            if (savedIP) {
-                ipInput.value = savedIP;
-            }
+            // 2. INITIALISATION DU SERVEUR WEBSOCKET NATIF
+            const wsserver = cordova.plugins.wsserver;
+            const PORT = 8080;
 
-            // --- CONNEXION WEBSOCKET ---
-            connectBtn.addEventListener('click', () => {
-                const ip = ipInput.value.trim();
-                if (!ip) {
-                    alert("Veuillez saisir l'adresse IP de votre PC !");
-                    return;
-                }
-
-                // Sauvegarde en mémoire locale
-                localStorage.setItem('pincab_ip', ip);
-                configBar.style.display = 'none';
-
-                const PORT_SERVEUR = "8080"; 
-                const targetUrl = `ws://${ip}:${PORT_SERVEUR}`;
-                
-                // NOTIFICATION : Lancement de la connexion
-                alert("Tentative de connexion vers :\n" + targetUrl);
-
-                try {
-                    const ws = new WebSocket(targetUrl);
-                    ws.binaryType = "arraybuffer";
-
-                    ws.onopen = () => {
-                        // NOTIFICATION : Succès
-                        alert("✅ Connecté avec succès au DMDServer !");
-                    };
-
-                    ws.onmessage = (event) => {
-                        const data = new Uint8Array(event.data);
+            wsserver.start(PORT, {
+                // En cas d'échec du démarrage
+                onFailure: function(addr, port, reason) {
+                    infoBar.innerHTML = `❌ Échec du serveur : ${reason}`;
+                    infoBar.style.borderBottomColor = "red";
+                },
+                // Quand le serveur est démarré avec succès
+                onStart: function(addr, port) {
+                    // On récupère l'IP locale de la tablette pour l'afficher à l'utilisateur
+                    wsserver.getInterfaces(function(interfaces) {
+                        let myIp = "Inconnue";
+                        for (let iface in interfaces) {
+                            if (interfaces[iface].ipv4Addresses.length > 0 && interfaces[iface].ipv4Addresses[0] !== "127.0.0.1") {
+                                myIp = interfaces[iface].ipv4Addresses[0];
+                                break;
+                            }
+                        }
+                        infoBar.innerHTML = `🟢 SERVEUR ACTIF | Configurez VPX sur votre téléphone avec l'IP : <span class="highlight">${myIp}:${port}</span>`;
                         
-                        // Si la donnée n'est pas 12288, on ne fait rien
+                        // Cache la barre après 10 secondes pour libérer l'écran
+                        setTimeout(() => { infoBar.style.opacity = "0"; }, 10000);
+                    });
+                },
+                // Quand un nouveau client (le téléphone) se connecte
+                onOpen: function(conn) {
+                    infoBar.style.opacity = "1";
+                    infoBar.innerHTML = `✅ Téléphone connecté ! En attente du DMD...`;
+                    setTimeout(() => { infoBar.style.opacity = "0"; }, 3000);
+                },
+                // Quand le téléphone envoie l'image du DMD
+                onMessage: function(conn, msg) {
+                    try {
+                        // Le plugin peut envoyer les données sous forme de string textuelle ou brute
+                        // Si VPX envoie de l'ArrayBuffer (binaire), on le convertit
+                        let data;
+                        if (typeof msg === 'string') {
+                            // Transformation basique d'une string en Uint8Array
+                            data = new Uint8Array(msg.length);
+                            for (let i = 0; i < msg.length; i++) data[i] = msg.charCodeAt(i);
+                        } else {
+                            data = new Uint8Array(msg);
+                        }
+                        
+                        // Traitement de l'image (identique à avant)
                         if (data.length === 12288) {
                             for (let i = 0; i < 4096; i++) {
                                 const idx = i * 3;
@@ -279,87 +197,59 @@
                                 imgData.data[dest + 2] = data[idx + 2];
                                 imgData.data[dest + 3] = 255;
                             }
-                            
                             ctx.clearRect(0, 0, canvas.width, canvas.height);
-                            
                             const tmp = document.createElement('canvas');
                             tmp.width = 128; tmp.height = 32;
                             tmp.getContext('2d').putImageData(imgData, 0, 0);
-                            
                             ctx.drawImage(tmp, 0, VERTICAL_OFFSET); 
                         }
-                    };
-
-                    ws.onerror = (error) => {
-                        // NOTIFICATION : Erreur avec l'IP ciblée
-                        alert(`❌ Impossible de se connecter !\nVérifiez l'IP (${ip}) et que DMDServer est lancé sur le port ${PORT_SERVEUR}.`);
-                        configBar.style.display = 'flex'; 
-                    };
-
-                    ws.onclose = (event) => {
-                        // NOTIFICATION : Déconnexion
-                        alert(`🔌 Connexion fermée ou perdue avec le serveur (Code: ${event.code}).`);
-                        configBar.style.display = 'flex'; 
-                    };
-
-                } catch(err) {
-                    alert("Erreur critique de l'application : " + err.message);
-                    configBar.style.display = 'flex';
+                    } catch (e) {
+                        console.error("Erreur de rendu du flux binaire : ", e);
+                    }
+                },
+                // Déconnexion
+                onClose: function(conn, code, reason, wasClean) {
+                    infoBar.style.opacity = "1";
+                    infoBar.innerHTML = `⚠️ Téléphone déconnecté.`;
+                    infoBar.style.borderBottomColor = "orange";
                 }
             });
 
-            // --- GESTION DE LA MODAL ET DE LA SAUVEGARDE DU BACKGLASS ---
+            // Afficher le bandeau d'info avec 3 doigts
+            window.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 3) {
+                    infoBar.style.opacity = "1";
+                }
+            });
+
+            // Gestion de la Modal (inchangée)
             const modal = document.getElementById('settings-modal');
             const settingsBtn = document.getElementById('settings-btn');
             const modalCloseBtn = document.getElementById('modal-close-btn');
             const modalResetBtn = document.getElementById('modal-reset-btn');
             const bgFileInput = document.getElementById('bg-file-input');
 
-            // Ouvrir la boîte
-            settingsBtn.addEventListener('click', () => {
-                modal.style.display = 'flex';
-            });
+            settingsBtn.addEventListener('click', () => modal.style.display = 'flex');
+            modalCloseBtn.addEventListener('click', () => modal.style.display = 'none');
 
-            // Fermer la boîte
-            modalCloseBtn.addEventListener('click', () => {
-                modal.style.display = 'none';
-            });
-
-            // Charger et encoder la nouvelle image
             bgFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const base64Image = event.target.result;
-                    
-                    // Applique l'image en fond immédiatement
                     backglassContainer.style.backgroundImage = `url('${base64Image}')`;
-                    
-                    // Tente de sauvegarder dans la tablette
-                    try {
-                        localStorage.setItem('pincab_backglass', base64Image);
-                    } catch(error) {
-                        alert("Attention : L'image sélectionnée est trop volumineuse pour être sauvegardée de façon permanente. Essayez avec un fichier plus léger.");
-                    }
+                    try { localStorage.setItem('pincab_backglass', base64Image); } 
+                    catch(error) { alert("L'image est trop lourde pour la sauvegarde locale."); }
                 };
                 reader.readAsDataURL(file);
             });
 
-            // Bouton de réinitialisation vers l'image native
             modalResetBtn.addEventListener('click', () => {
                 localStorage.removeItem('pincab_backglass');
                 backglassContainer.style.backgroundImage = "url('backglass.jpg')";
                 modal.style.display = 'none';
-                bgFileInput.value = ""; // Réinitialise l'input
-            });
-
-            // ASTUCE : Réapparaître la barre de config avec 3 doigts
-            window.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 3) {
-                    configBar.style.display = 'flex';
-                }
+                bgFileInput.value = ""; 
             });
         }
     </script>
