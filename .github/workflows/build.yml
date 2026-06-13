@@ -14,8 +14,8 @@ jobs:
         with:
           node-version: 14
 
-      - name: Install Cordova
-        run: npm install -g cordova
+      - name: Install specific Cordova version
+        run: npm install -g cordova@11
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
