@@ -12,10 +12,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 12
 
-      - name: Install specific Cordova version
-        run: npm install -g cordova@11
+      - name: Install Cordova 10
+        run: npm install -g cordova@10
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -66,7 +66,7 @@ jobs:
               </platform>
           </widget>' > config.xml
 
-          cordova platform add android
+          cordova platform add android@10.1.1
           
           # Plugin permettant l'exécution de Node.js en tâche de fond native sur Android
           cordova plugin add nodejs-mobile-cordova
