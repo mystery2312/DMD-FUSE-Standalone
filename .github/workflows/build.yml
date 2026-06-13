@@ -1,9 +1,9 @@
-name: Build DMD FUSE APK
+name: Build DMD FUSE Standalone APK
 on: [push, workflow_dispatch]
 
 jobs:
   build:
-    name: Build Android APK
+    name: Build Android Standalone APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -28,15 +28,25 @@ jobs:
 
       - name: Create Project and Build
         run: |
-          cordova create build_folder com.pincab.dmdfuse "DMD FUSE"
+          cordova create build_folder com.pincab.dmdfusestandalone "DMD FUSE Standalone"
           rm -rf build_folder/www
           cp -r www build_folder/www
           
+          # COPIE DU DOSSIER SERVEUR NODE.JS EMBARQUÉ ET DU LOGO
+          if [ -d "nodejs-project" ]; then
+            cp -r nodejs-project build_folder/nodejs-project
+          fi
+          
+          if [ -f "logo.png" ]; then
+            cp logo.png build_folder/logo.png
+          fi
+          
           cd build_folder
           
+          # Configuration du config.xml embarquant Node.js
           echo '<?xml version="1.0" encoding="utf-8"?>
-          <widget id="com.pincab.dmdfuse" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android">
-              <name>DMD FUSE</name>
+          <widget id="com.pincab.dmdfusestandalone" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android">
+              <name>DMD FUSE Standalone</name>
               <content src="index.html" />
               <access origin="*" />
               <allow-navigation href="ws://*/*" />
@@ -44,24 +54,27 @@ jobs:
               <allow-intent href="http://*/*" />
               <preference name="Orientation" value="landscape" />
               <preference name="Fullscreen" value="true" />
+              
               <preference name="scheme" value="http" />
               <preference name="hostname" value="localhost" />
-              <edit-config href="---/*" id="AndroidManifest.xml" mode="merge" target="app/src/main/AndroidManifest.xml">
-                  <application android:usesCleartextTraffic="true" />
-              </edit-config>
+
+              <platform name="android">
+                  <edit-config file="app/src/main/AndroidManifest.xml" target="/manifest/application" mode="merge">
+                      <application android:usesCleartextTraffic="true" />
+                  </edit-config>
+                  <icon src="logo.png" />
+              </platform>
           </widget>' > config.xml
 
           cordova platform add android
           
-          # Plugin pour autoriser le HTTP clair
-          cordova plugin add cordova-plugin-cleartext
-          # LE NOUVEAU PLUGIN : Transforme la tablette en Serveur WebSocket
-          cordova plugin add cordova-plugin-websocket-server
+          # Plugin permettant l'exécution de Node.js en tâche de fond native sur Android
+          cordova plugin add nodejs-mobile-cordova
           
-          cordova build android --device
+          cordova build android
 
       - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
-          name: DMD-FUSE-Application
-          path: build_folder/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          name: DMD-FUSE-Standalone-Application
+          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
