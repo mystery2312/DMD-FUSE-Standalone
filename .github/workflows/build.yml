@@ -12,10 +12,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
-
-      - name: Set npm legacy peer deps
-        run: npm config set legacy-peer-deps true
+          node-version: 14
 
       - name: Install Cordova
         run: npm install -g cordova
