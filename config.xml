@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.pincab.dmdfusestandalone" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android">
-    <name>DMD FUSE Standalone</name>
+    <name>DMD FUSE Standalone </name>
     <description>Récepteur DMD Autonome pour Pincab Android</description>
     <author>Johan</author>
 
