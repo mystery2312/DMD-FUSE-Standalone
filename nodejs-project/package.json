@@ -1,1 +1,9 @@
+{
+  "name": "dmd-fuse-server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "dependencies": {
+    "ws": "^8.21.0"
+  }
+}
 
