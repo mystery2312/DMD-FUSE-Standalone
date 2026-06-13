@@ -14,6 +14,9 @@ jobs:
         with:
           node-version: 16
 
+      - name: Set npm legacy peer deps
+        run: npm config set legacy-peer-deps true
+
       - name: Install Cordova
         run: npm install -g cordova
 
