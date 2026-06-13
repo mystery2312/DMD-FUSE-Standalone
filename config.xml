@@ -1,1 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.pincab.dmdfusestandalone" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>DMD FUSE Standalone</name>
+    <description>Récepteur DMD Autonome pour Pincab Android</description>
+    <author>Johan</author>
+
+    <content src="index.html" />
+
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-navigation href="ws://*/*" />
+
+    <edit-config file="app/src/main/AndroidManifest.xml" target="/manifest/application" mode="merge">
+        <application android:usesCleartextTraffic="true" />
+    </edit-config>
+
+    <preference name="Orientation" value="landscape" />
+    <preference name="Fullscreen" value="true" />
+    <preference name="BackgroundColor" value="#000000" />
+
+    <preference name="scheme" value="http" />
+    <preference name="hostname" value="localhost" />
+
+    <platform name="android">
+        <icon src="logo.png" />
+    </platform>
+</widget>
 
